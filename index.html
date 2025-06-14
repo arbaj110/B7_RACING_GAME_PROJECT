@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro - Car Racing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+            url(img/car.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 64rem;
+            margin: 0 auto;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8));
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 3rem;
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.6));
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .menu-btn {
+            width: 12rem;
+            height: 4rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: white;
+            border: 2px solid;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: scale(1);
+            transition: all 0.2s ease-in-out;
+            letter-spacing: 1px;
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .play-btn {
+            background-color: #059669;
+            border-color: #34d399;
+        }
+
+        .play-btn:hover {
+            background-color: #047857;
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
+        }
+
+        .howto-btn {
+            background-color: #2563eb;
+            border-color: #60a5fa;
+        }
+
+        .howto-btn:hover {
+            background-color: #1d4ed8;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+        }
+
+        .quit-btn {
+            background-color: #dc2626;
+            border-color: #f87171;
+        }
+
+        .quit-btn:hover {
+            background-color: #b91c1c;
+            box-shadow: 0 0 20px rgba(248, 113, 113, 0.4);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+        }
+
+        /* Modal styles for confirmation */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #1f2937;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 2px solid #dc2626;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: white;
+        }
+
+        .modal-content h2 {
+            color: #dc2626;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content p {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .modal-buttons button {
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .confirm-btn {
+            background-color: #dc2626;
+            color: white;
+            border: 1px solid #dc2626;
+        }
+
+        .confirm-btn:hover {
+            background-color: #b91c1c;
+        }
+
+        .cancel-btn {
+            background-color: #374151;
+            color: white;
+            border: 1px solid #6b7280;
+        }
+
+        .cancel-btn:hover {
+            background-color: #4b5563;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 640px) {
+            .menu-buttons {
+                flex-direction: row;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .title {
+                font-size: 4rem;
+            }
+
+            .subtitle {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .title {
+                font-size: 4.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Background Image -->
+        <div class="background"></div>
+        
+        <!-- Dark overlay for better text readability -->
+        <div class="overlay"></div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="container">
+                <!-- Title -->
+                <h1 class="title">
+                    <span class="a">🏁</span> <span class="b">Car Racing Game</span>
+                </h1>
+                
+                <!-- Subtitle -->
+                <p class="subtitle">
+                    <marquee behavior="" direction="">Get ready for the ultimate racing experience!</marquee>
+                </p>
+
+                <!-- Menu Buttons -->
+                <div class="menu-buttons">
+                    <button class="menu-btn play-btn" onclick="playGame()">
+                        🎮 PLAY
+                    </button>
+                    
+                    <button class="menu-btn howto-btn" onclick="showHowToPlay()">
+                        📖 HOW TO PLAY
+                    </button>
+                    
+                    <button class="menu-btn quit-btn" onclick="quitGame()">
+                        🚪 QUIT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                © 2025 All Rights Reserved
+            </footer>
+        </div>
+    </div>
+
+    <!-- Quit Confirmation Modal -->
+    <div id="quitModal" class="modal">
+        <div class="modal-content">
+            <h2>Quit Game</h2>
+            <p>Are you sure you want to quit the game?</p>
+            <div class="modal-buttons">
+                <button class="confirm-btn" onclick="confirmQuit()">Yes, Quit</button>
+                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+ 
+
+        function playGame() {
+       window.location.href = 'levels/home.html';
+}
+
+        function showHowToPlay() {
+            // Show instructions or navigate to instructions page
+            console.log('Showing how to play...');
+            // You can redirect to instructions page here
+            // window.location.href = 'instructions.html';
+            alert(`How to Play:
+            
+🏎️ Use arrow keys to steer your car
+⬆️ Up arrow: Accelerate
+⬇️ Down arrow: Brake/Reverse
+⬅️➡️ Left/Right arrows: Steer
+🎯 Avoid obstacles and other cars
+🏁 Reach the finish line to win!`);
+        }
+
+        function quitGame() {
+            // Show confirmation modal
+            document.getElementById('quitModal').style.display = 'flex';
+        }
+
+        function confirmQuit() {
+            // Attempt to close the window/tab
+            try {
+                // For windows opened by script
+                window.close();
+                
+                // If window.close() doesn't work (most modern browsers prevent this)
+                // Show a message to the user
+                setTimeout(() => {
+                    if (!window.closed) {
+                        alert('Please close this tab manually to quit the game.');
+                        // Alternative: redirect to a goodbye page
+                        // window.location.href = 'goodbye.html';
+                    }
+                }, 100);
+            } catch (error) {
+                // Fallback: show message to close manually
+                alert('Please close this tab manually to quit the game.');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('quitModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('quitModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Optional: Add keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case '1':
+                case 'p':
+                case 'P':
+                    playGame();
+                    break;
+                case '2':
+                case 'h':
+                case 'H':
+                    showHowToPlay();
+                    break;
+                case '3':
+                case 'q':
+                case 'Q':
+                    quitGame();
+                    break;
+                case 'Escape':
+                    closeModal();
+                    break;
+            }
+        });
+
+        // Page load event
+        window.addEventListener('load', function() {
+            console.log('Car Racing Game loaded successfully!');
+        });
+    </script>
+</body>
+</html>
